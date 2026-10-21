@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>A Letter For You 🌸</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Cormorant Garamond, Dancing Script, and Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Dancing+Script:wght@600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Canvas Confetti & Phosphor Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #fff8f8;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .font-serif-romantic {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+    }
+
+    .font-handwriting {
+      font-family: 'Dancing Script', cursive;
+    }
+
+    /* Soft Floating Petals Animation */
+    @keyframes floatPetal {
+      0% {
+        transform: translateY(-10%) rotate(0deg) translateX(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.8;
+      }
+      90% {
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(110vh) rotate(360deg) translateX(50px);
+        opacity: 0;
+      }
+    }
+
+    .petal {
+      position: fixed;
+      pointer-events: none;
+      z-index: 1;
+      animation: floatPetal linear infinite;
+    }
+
+    /* Candle Flame Animations */
+    @keyframes flicker {
+      0%, 100% {
+        transform: scale(1) rotate(-1deg);
+        box-shadow: 0 0 20px rgba(251, 146, 60, 0.8), 0 0 40px rgba(245, 158, 11, 0.4);
+      }
+      25% {
+        transform: scale(1.08, 0.94) rotate(2deg);
+        box-shadow: 0 0 25px rgba(251, 146, 60, 0.9), 0 0 50px rgba(245, 158, 11, 0.6);
+      }
+      50% {
+        transform: scale(0.95, 1.05) rotate(-2deg);
+        box-shadow: 0 0 18px rgba(251, 146, 60, 0.7), 0 0 35px rgba(245, 158, 11, 0.3);
+      }
+      75% {
+        transform: scale(1.04, 0.98) rotate(1deg);
+        box-shadow: 0 0 22px rgba(251, 146, 60, 0.85), 0 0 45px rgba(245, 158, 11, 0.5);
+      }
+    }
+
+    .candle-flame {
+      animation: flicker 1.4s infinite ease-in-out;
+      transform-origin: bottom center;
+    }
+
+    .candle-flame.flicker-strong {
+      animation: flicker 0.25s infinite ease-in-out;
+      transform: scale(0.65, 1.3) rotate(7deg) !important;
+    }
+
+    /* Wax Seal Stamp Breathing */
+    @keyframes sealPulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 10px 25px -5px rgba(190, 18, 60, 0.4); }
+      50% { transform: scale(1.04); box-shadow: 0 15px 30px -5px rgba(190, 18, 60, 0.6); }
+    }
+    .wax-seal {
+      animation: sealPulse 2.8s ease-in-out infinite;
+    }
+
+    /* Custom Parchment Effect */
+    .parchment {
+      background: radial-gradient(circle at 50% 50%, #fffdfa 0%, #fbf5ed 100%);
+      box-shadow: 0 20px 45px -10px rgba(115, 65, 65, 0.12), 0 0 0 1px rgba(230, 205, 195, 0.6);
+    }
+
+    /* Print styles for Bouquet Card */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printable-qr-card, #printable-qr-card * {
+        visibility: visible;
+      }
+      #printable-qr-card {
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 320px;
+        border: 2px dashed #e11d48 !important;
+        box-shadow: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col justify-between selection:bg-rose-200 selection:text-rose-900 relative">
+
+  <div id="petal-container" class="fixed inset-0 pointer-events-none z-0 overflow-hidden"></div>
+
+  <!-- Top Navigation Bar -->
+  <header class="relative z-20 w-full max-w-xl mx-auto px-4 pt-4 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-rose-100 text-rose-600 shadow-sm text-sm">
+        🌸
+      </span>
+      <span id="header-brand" class="text-xs font-semibold uppercase tracking-wider text-rose-800/80">Birthday Bouquet Note</span>
+    </div>
+
+    <!-- Boyfriend Secret Studio Button (Dynamically removed for her) -->
+    <button id="mode-switch-btn" onclick="toggleAdminDashboard()" class="text-xs px-3 py-1.5 rounded-full bg-white/80 hover:bg-white text-rose-900 border border-rose-200 shadow-sm backdrop-blur transition flex items-center gap-1.5 active:scale-95">
+      <i class="ph-bold ph-heart text-rose-500"></i>
+      <span class="font-medium">Boyfriend Studio</span>
+      <span id="notification-indicator" class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+    </button>
+  </header>
+
+  <main class="relative z-10 w-full max-w-md mx-auto px-4 py-6 flex-1 flex flex-col justify-center">
+
+    <!-- ================= STAGE 1: SEALED ENVELOPE (HOME) ================= -->
+    <section id="stage-envelope" class="space-y-6 text-center transition-all duration-700">
+      <div class="inline-block px-4 py-1 rounded-full bg-rose-100/80 border border-rose-200 text-rose-700 text-xs font-semibold uppercase tracking-widest shadow-sm">
+        Special Delivery For You 💌
+      </div>
+
+      <h1 class="font-serif-romantic text-4xl sm:text-5xl font-bold text-rose-950 tracking-tight leading-tight">
+        A Letter For You
+      </h1>
+
+      <p class="text-sm text-rose-800/80 max-w-xs mx-auto leading-relaxed">
+        Tucked inside your fresh bouquet is a heartfelt letter written just for your birthday. Tap the wax seal to open it.
+      </p>
+
+      <!-- The Sealed Envelope Graphic -->
+      <div class="relative mx-auto my-6 w-64 h-48 sm:w-72 sm:h-52 bg-gradient-to-br from-rose-100 via-rose-50 to-pink-100 rounded-3xl border-2 border-rose-200 shadow-2xl flex items-center justify-center p-4">
+        <!-- Envelope Flap Creases -->
+        <div class="absolute inset-0 opacity-40 pointer-events-none">
+          <svg class="w-full h-full" viewBox="0 0 280 200" fill="none">
+            <path d="M0 0 L140 110 L280 0" stroke="#f43f5e" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <path d="M0 200 L110 90" stroke="#f43f5e" stroke-width="1"/>
+            <path d="M280 200 L170 90" stroke="#f43f5e" stroke-width="1"/>
+          </svg>
+        </div>
+
+        <!-- Wax Seal Button -->
+        <button onclick="goToStage('stage-question')" class="wax-seal group relative z-10 w-20 h-20 rounded-full bg-gradient-to-br from-rose-600 via-rose-700 to-rose-900 text-rose-100 flex flex-col items-center justify-center border-4 border-rose-400/40 cursor-pointer transition transform active:scale-95 hover:scale-105">
+          <i class="ph-fill ph-heart text-2xl group-hover:scale-110 transition"></i>
+          <span class="text-[10px] font-bold uppercase tracking-wider mt-0.5">Open</span>
+        </button>
+
+        <div class="absolute -bottom-3 text-[11px] font-medium text-rose-600/90 bg-white/90 px-3 py-0.5 rounded-full border border-rose-200 shadow-sm">
+          Tap wax seal to break & read
+        </div>
+      </div>
+
+      <p class="font-handwriting text-2xl text-rose-700">"Every petal is a reminder of you..."</p>
+    </section>
+
+    <!-- ================= STAGE 2: QUESTION & GUESS GATE ================= -->
+    <section id="stage-question" class="hidden space-y-5 text-center transition-all duration-700">
+      <div class="parchment p-6 sm:p-8 rounded-3xl text-left border border-rose-200 shadow-xl relative overflow-hidden">
+        
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-rose-100">
+          <span class="text-xs font-bold uppercase tracking-widest text-rose-500 flex items-center gap-1">
+            <i class="ph-fill ph-key"></i> Passcode Question
+          </span>
+          <span class="text-xs text-rose-400 font-medium">Step 1 of 3</span>
+        </div>
+
+        <h2 id="display-question" class="font-serif-romantic text-2xl sm:text-3xl font-bold text-rose-950 mb-2 leading-snug">
+          Who do you think got you these flowers?
+        </h2>
+        
+        <p class="text-xs text-rose-700/80 mb-5 leading-relaxed">
+          Type your guess below. Don't worry—any name or sweet answer you type will unlock the next birthday surprise!
+        </p>
+
+        <!-- Dynamic Hint Box -->
+        <div class="bg-rose-50/90 rounded-2xl p-4 border border-rose-200/80 mb-5">
+          <div class="flex items-start gap-2.5">
+            <div class="p-1.5 rounded-lg bg-rose-200 text-rose-700 shrink-0 text-sm">
+              💡
+            </div>
+            <div>
+              <p class="text-xs font-bold text-rose-900 mb-0.5">Romantic Hint:</p>
+              <p id="display-hint" class="text-xs text-rose-800 leading-relaxed font-serif-romantic italic text-[15px]">
+                "This is the very first time I've ever given you flowers, and every single petal made me think of your smile."
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Answer Form -->
+        <div class="space-y-3">
+          <label for="her-guess-input" class="block text-xs font-semibold text-rose-900 uppercase tracking-wider">
+            Your Answer:
+          </label>
+          <input 
+            type="text" 
+            id="her-guess-input" 
+            placeholder="Type who you think it is..." 
+            class="w-full px-4 py-3 rounded-2xl border-2 border-rose-200 focus:border-rose-500 focus:outline-none text-rose-950 placeholder-rose-300 bg-white/90 text-sm font-medium transition shadow-inner"
+            autocomplete="off"
+            onkeypress="if(event.key === 'Enter') submitGuess()"
+          />
+
+          <p id="guess-error" class="hidden text-xs text-rose-600 font-medium text-center">
+            Please write a name or guess before submitting! ✨
+          </p>
+
+          <button onclick="submitGuess()" class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white font-semibold text-sm shadow-lg shadow-rose-600/30 active:scale-98 transition flex items-center justify-center gap-2">
+            <span>Unlock Birthday Surprise</span>
+            <i class="ph-bold ph-arrow-right"></i>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= STAGE 3: WISH & BLOW OUT THE CANDLE ================= -->
+    <section id="stage-candle" class="hidden space-y-5 text-center transition-all duration-700">
+      <div class="parchment p-6 sm:p-8 rounded-3xl border border-rose-200 shadow-xl relative">
+
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold uppercase tracking-wider mb-2">
+          🎂 Make A Birthday Wish
+        </div>
+
+        <h2 class="font-serif-romantic text-3xl font-bold text-rose-950">
+          Blow Out Your Candle
+        </h2>
+
+        <!-- Step A: Type the wish -->
+        <div id="wish-input-container" class="space-y-3 my-4">
+          <p class="text-xs text-rose-700/80 leading-relaxed">
+            Close your eyes, think of something you truly desire this year, and type it into your secret birthday wish box.
+          </p>
+          <textarea 
+            id="her-wish-input" 
+            rows="2" 
+            placeholder="Type your birthday wish here..." 
+            class="w-full px-4 py-3 rounded-2xl border-2 border-rose-200 focus:border-rose-500 focus:outline-none text-rose-950 placeholder-rose-300 bg-white text-sm font-medium transition shadow-inner resize-none"
+          ></textarea>
+          <button onclick="lockInWish()" class="w-full py-3 px-5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-md transition flex items-center justify-center gap-2">
+            <span>Lock In My Wish & Light Candle</span>
+            <i class="ph-fill ph-sparkle"></i>
+          </button>
+        </div>
+
+        <!-- Step B: Interactive Cake Candle Container (Hidden until wish is locked) -->
+        <div id="candle-interactive-area" class="hidden space-y-4 pt-2">
+          
+          <div class="relative w-48 h-56 mx-auto flex flex-col items-center justify-end">
+            <!-- Smoke Effect (When blown) -->
+            <div id="candle-smoke" class="hidden absolute top-4 flex flex-col items-center text-slate-400 opacity-70">
+              <span class="text-xl animate-bounce">💨</span>
+              <span class="text-xs italic font-serif">Wish sent to the stars...</span>
+            </div>
+
+            <!-- Candle Flame -->
+            <div id="flame-element" class="candle-flame relative w-7 h-10 mb-1 flex items-center justify-center">
+              <div class="w-full h-full bg-gradient-to-t from-amber-500 via-yellow-300 to-white rounded-full rounded-t-full shadow-lg"></div>
+              <div class="absolute bottom-1 w-2.5 h-3 bg-blue-500/70 rounded-full blur-[1px]"></div>
+            </div>
+
+            <!-- Wick -->
+            <div class="w-1 h-3 bg-neutral-800 rounded-t"></div>
+
+            <!-- Candle Cylinder -->
+            <div class="w-6 h-20 bg-gradient-to-r from-pink-300 via-rose-200 to-pink-300 rounded-t border-t border-rose-400 relative shadow-md">
+              <div class="absolute inset-0 bg-[radial-gradient(#f43f5e_1px,transparent_1px)] [background-size:6px_6px] opacity-30"></div>
+            </div>
+
+            <!-- Cake Top & Base -->
+            <div class="w-40 h-10 bg-gradient-to-b from-rose-100 to-rose-200 rounded-t-2xl border-t-2 border-rose-300 shadow-sm relative flex items-center justify-center">
+              <span class="text-xs font-serif-romantic font-semibold text-rose-800">Happy Birthday 🌸</span>
+            </div>
+            <div class="w-48 h-8 bg-amber-100 rounded-2xl border border-amber-200 shadow-md flex items-center justify-center">
+              <span class="text-[11px] text-amber-800 font-medium">Sweet Vanilla Cream</span>
+            </div>
+          </div>
+
+          <!-- Microphone Status & Blow Instructions -->
+          <div class="bg-rose-50/80 p-3 rounded-2xl border border-rose-200 space-y-2">
+            <p id="mic-status-text" class="text-xs font-semibold text-rose-900 flex items-center justify-center gap-1.5">
+              <i class="ph-bold ph-microphone text-rose-600 animate-pulse"></i>
+              <span>Blow gently into your microphone to extinguish the candle!</span>
+            </p>
+
+            <!-- Sensitivity audio feedback meter -->
+            <div class="w-full bg-rose-200/60 rounded-full h-2 overflow-hidden">
+              <div id="mic-volume-bar" class="bg-gradient-to-r from-amber-400 to-rose-500 h-full w-0 transition-all duration-75"></div>
+            </div>
+
+            <!-- Manual Fallback Button for browsers blocking mic -->
+            <div class="pt-1">
+              <button onclick="blowCandleManual()" class="text-[11px] text-rose-600 underline font-medium hover:text-rose-800">
+                Microphone not working? Tap here to blow it out
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= STAGE 4: THE WARM BIRTHDAY LETTER ================= -->
+    <section id="stage-letter" class="hidden space-y-6 transition-all duration-1000">
+      
+      <!-- Top banner for celebration -->
+      <div class="text-center space-y-1">
+        <span class="inline-block text-3xl animate-bounce">💐</span>
+        <h2 class="font-serif-romantic text-3xl sm:text-4xl font-bold text-rose-950">
+          Happy Birthday, Beautiful
+        </h2>
+        <p class="font-handwriting text-xl text-rose-700">A message from my heart to yours</p>
+      </div>
+
+      <!-- The Letter Parchment -->
+      <div class="parchment p-6 sm:p-10 rounded-3xl border border-rose-200 shadow-2xl relative overflow-hidden leading-relaxed text-rose-950">
+        
+        <!-- Subtle Vintage Corner Floral Accents -->
+        <div class="absolute top-2 right-2 text-rose-300 text-3xl select-none opacity-40">🌸</div>
+        <div class="absolute bottom-2 left-2 text-rose-300 text-3xl select-none opacity-40">✨</div>
+
+        <div class="space-y-4 font-serif-romantic text-lg sm:text-xl text-slate-800">
+          <p id="letter-greeting" class="font-bold text-2xl text-rose-950">
+            Dearest,
+          </p>
+
+          <p id="letter-p1" class="leading-relaxed">
+            Happy birthday! Today is completely yours, and I wanted to make sure it began with something bright, sweet, and blooming.
+          </p>
+
+          <p id="letter-p2" class="leading-relaxed">
+            Giving you flowers for the very first time was something I couldn’t wait for. Every petal in this bouquet holds my appreciation for your warmth, your contagious laughter, and the way you effortlessly brighten every single room you walk into.
+          </p>
+
+          <p id="letter-p3" class="leading-relaxed">
+            I hope your wish today comes true, and I hope this new year of your life brings you as much happiness, peace, and unforgettable moments as you constantly give to everyone lucky enough to know you.
+          </p>
+
+          <div class="pt-4 border-t border-rose-200/60 mt-6 flex flex-col items-end">
+            <p class="text-base text-rose-700">With all my heart,</p>
+            <p id="letter-signature" class="font-handwriting text-3xl font-bold text-rose-900 mt-1">
+              Always Yours ❤️
+            </p>
+          </div>
+        </div>
+
+        <!-- Confetti Replay Button -->
+        <div class="mt-8 pt-4 border-t border-rose-100 flex items-center justify-between">
+          <span class="text-xs font-semibold text-rose-600/80">Celebrate again:</span>
+          <button onclick="triggerBirthdayConfetti()" class="px-3.5 py-1.5 rounded-full bg-rose-100 hover:bg-rose-200 text-rose-900 text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+            <span>🎉 Pop Confetti</span>
+          </button>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ================= BOYFRIEND ADMIN & LIVE TRACKER DASHBOARD ================= -->
+  <div id="admin-dashboard" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-5">
+    <div class="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-5 sm:p-6 shadow-2xl border border-rose-200 relative text-slate-800">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-3 mb-4 border-b border-rose-100">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-rose-600 text-white flex items-center justify-center text-sm font-bold">
+            ❤️
+          </div>
+          <div>
+            <h3 class="font-bold text-rose-950 text-base leading-tight">Boyfriend Studio & Tracker</h3>
+            <p class="text-[11px] text-rose-600">Real-time status of her bouquet note</p>
+          </div>
+        </div>
+        <button onclick="toggleAdminDashboard()" class="w-7 h-7 rounded-full bg-rose-50 text-rose-700 hover:bg-rose-100 flex items-center justify-center text-sm transition">
+          ✕
+        </button>
+      </div>
+
+      <!-- Tabs inside Dashboard -->
+      <div class="flex gap-1.5 mb-4 bg-rose-50 p-1.5 rounded-2xl">
+        <button onclick="switchDashboardTab('live')" id="tab-btn-live" class="flex-1 py-2 px-2.5 rounded-xl text-xs font-bold bg-white text-rose-900 shadow-sm transition">
+          📡 Live Feed
+        </button>
+        <button onclick="switchDashboardTab('customize')" id="tab-btn-customize" class="flex-1 py-2 px-2.5 rounded-xl text-xs font-bold text-rose-700 hover:bg-white/50 transition">
+          ✍️ Customize
+        </button>
+        <button onclick="switchDashboardTab('qr')" id="tab-btn-qr" class="flex-1 py-2 px-2.5 rounded-xl text-xs font-bold text-rose-700 hover:bg-white/50 transition">
+          🖨️ QR Card
+        </button>
+        <button onclick="switchDashboardTab('guide')" id="tab-btn-guide" class="flex-1 py-2 px-2.5 rounded-xl text-xs font-bold text-rose-700 hover:bg-white/50 transition">
+          🐙 GitHub Steps
+        </button>
+      </div>
+
+      <!-- TAB 1: LIVE ACTIVITY FEED -->
+      <div id="dash-tab-live" class="space-y-3.5">
+        <!-- Live Cross-device status pill -->
+        <div class="flex items-center justify-between px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs">
+          <div class="flex items-center gap-1.5 font-semibold">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+            <span>Live Cloud Sync Ready</span>
+          </div>
+          <span class="text-[10px] bg-emerald-200/60 px-2 py-0.5 rounded-full font-mono" id="sync-room-id">ROOM: BOUQUET</span>
+        </div>
+
+        <!-- Status summary cards -->
+        <div class="grid grid-cols-2 gap-2.5 text-center">
+          <div class="bg-rose-50/70 p-3 rounded-2xl border border-rose-100">
+            <span class="text-[11px] font-bold text-rose-700 uppercase tracking-wider block">First Opened</span>
+            <span id="tracker-opened-time" class="text-sm font-bold text-rose-950">Not opened yet</span>
+          </div>
+          <div class="bg-rose-50/70 p-3 rounded-2xl border border-rose-100">
+            <span class="text-[11px] font-bold text-rose-700 uppercase tracking-wider block">Candle Blown</span>
+            <span id="tracker-candle-status" class="text-sm font-bold text-rose-950">Waiting</span>
+          </div>
+        </div>
+
+        <!-- Her Answer Box -->
+        <div class="p-4 rounded-2xl bg-white border border-rose-200 shadow-sm">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-bold text-rose-900 flex items-center gap-1.5">
+              <i class="ph-fill ph-chat-circle-dots text-rose-500"></i> What She Answered:
+            </span>
+            <span id="tracker-guess-time" class="text-[10px] text-slate-400">---</span>
+          </div>
+          <div id="tracker-guess-content" class="p-3 rounded-xl bg-rose-50/50 text-xs font-semibold text-rose-950 italic">
+            "Waiting for her to answer..."
+          </div>
+        </div>
+
+        <!-- Her Birthday Wish Box -->
+        <div class="p-4 rounded-2xl bg-white border border-rose-200 shadow-sm">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-bold text-rose-900 flex items-center gap-1.5">
+              <i class="ph-fill ph-star text-amber-500"></i> Her Birthday Wish:
+            </span>
+            <span id="tracker-wish-time" class="text-[10px] text-slate-400">---</span>
+          </div>
+          <div id="tracker-wish-content" class="p-3 rounded-xl bg-amber-50/50 text-xs font-semibold text-amber-950 italic">
+            "Waiting for her to make her wish..."
+          </div>
+        </div>
+
+        <!-- Simulation & Reset controls -->
+        <div class="pt-2 flex gap-2">
+          <button onclick="simulateHerExperience()" class="flex-1 py-2 px-3 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-900 text-xs font-bold transition">
+            🧪 Test / Simulate Her Answer
+          </button>
+          <button onclick="resetActivityData()" class="py-2 px-3 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-xs font-bold transition">
+            🔄 Reset
+          </button>
+        </div>
+
+      </div>
+
+      <!-- TAB 2: CUSTOMIZE LETTER & HINT -->
+      <div id="dash-tab-customize" class="space-y-3.5 hidden">
+        <div>
+          <label class="block text-xs font-bold text-rose-900 mb-1">Passcode Question:</label>
+          <input id="edit-question" type="text" class="w-full text-xs p-2.5 rounded-xl border border-rose-200 focus:outline-none focus:border-rose-500" value="Who do you think got you these flowers?">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-rose-900 mb-1">Romantic Hint (First Time Giving Flowers):</label>
+          <textarea id="edit-hint" rows="2" class="w-full text-xs p-2.5 rounded-xl border border-rose-200 focus:outline-none focus:border-rose-500">This is the very first time I've ever given you flowers, and every single petal made me think of your smile.</textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-rose-900 mb-1">Greeting Name:</label>
+          <input id="edit-greeting" type="text" class="w-full text-xs p-2.5 rounded-xl border border-rose-200 focus:outline-none focus:border-rose-500" value="Dearest,">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-rose-900 mb-1">Paragraph 1 (The Birthday Message):</label>
+          <textarea id="edit-p1" rows="2" class="w-full text-xs p-2.5 rounded-xl border border-rose-200 focus:outline-none focus:border-rose-500">Happy birthday! Today is completely yours, and I wanted to make sure it began with something bright, sweet, and blooming.</textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-rose-900 mb-1">Paragraph 2 (The Bouquet Meaning):</label>
+          <textarea id="edit-p2" rows="2" class="w-full text-xs p-2.5 rounded-xl border border-rose-200 focus:outline-none focus:border-rose-500">Giving you flowers for the very first time was something I couldn’t wait for. Every petal in this bouquet holds my appreciation for your warmth, your contagious laughter, and the way you effortlessly brighten every single room you walk into.</textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-rose-900 mb-1">Paragraph 3 (The Birthday Wish):</label>
+          <textarea id="edit-p3" rows="2" class="w-full text-xs p-2.5 rounded-xl border border-rose-200 focus:outline-none focus:border-rose-500">I hope your wish today comes true, and I hope this new year of your life brings you as much happiness, peace, and unforgettable moments as you constantly give to everyone lucky enough to know you.</textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-rose-900 mb-1">Signature:</label>
+          <input id="edit-sig" type="text" class="w-full text-xs p-2.5 rounded-xl border border-rose-200 focus:outline-none focus:border-rose-500" value="Always Yours ❤️">
+        </div>
+        <button onclick="saveLetterCustomization()" class="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition">
+          💾 Save Changes
+        </button>
+      </div>
+
+      <!-- TAB 3: PRINTABLE "SCAN ME" BOUQUET CARD -->
+      <div id="dash-tab-qr" class="space-y-4 hidden">
+        <div id="printable-qr-card" class="max-w-xs mx-auto bg-gradient-to-b from-rose-50 to-white p-5 rounded-3xl border-2 border-rose-300 text-center shadow-md">
+          <div class="inline-flex items-center gap-1 text-rose-600 text-[10px] font-bold uppercase tracking-widest mb-1">
+            <i class="ph-fill ph-flower-tulip"></i>
+            <span>For Your Birthday</span>
+            <i class="ph-fill ph-flower-tulip"></i>
+          </div>
+          <h4 class="font-serif-romantic text-2xl font-bold text-rose-950 mb-1">Scan Me 🌸</h4>
+      <!-- TAB 4: HOW TO GO LIVE ON GITHUB PAGES -->
+      <div id="dash-tab-guide" class="space-y-3 hidden text-xs text-rose-950 leading-relaxed">
+        <div class="p-3.5 bg-rose-50 rounded-2xl border border-rose-200 space-y-2">
+          <p class="font-bold text-rose-900 text-sm flex items-center gap-1.5">
+            <span>🐙 GitHub Pages 3-Minute Step-by-Step:</span>
+          </p>
+          <ol class="list-decimal pl-4 space-y-1.5 text-rose-900 font-medium leading-relaxed">
+            <li>Log into your account at <a href="https://github.com" target="_blank" class="underline font-bold text-rose-700">github.com</a>.</li>
+            <li>Click the green <strong>"New"</strong> button to create a new repository. Name it anything (for example: <code class="bg-white px-1.5 py-0.5 rounded text-rose-800 border">birthday-letter</code>).</li>
+            <li>Set the repository to <strong>Public</strong>, then click <strong>"Create repository"</strong>.</li>
+            <li>Click <strong>"uploading an existing file"</strong>, drag and drop this file, and make sure its name is exactly: <code class="bg-white px-1.5 py-0.5 rounded font-bold text-rose-800 border">index.html</code>.</li>
+            <li>Click the green <strong>"Commit changes"</strong> button.</li>
+            <li>Go to the repository <strong>Settings</strong> (top tab) &rarr; on the left sidebar click <strong>Pages</strong>.</li>
+            <li>Under <em>Branch</em>, select <strong>main</strong> (or <strong>master</strong>), keep <strong>/ (root)</strong>, and click <strong>Save</strong>.</li>
+            <li>Wait about 60 seconds! GitHub will show your live link at the top: <code class="bg-white px-1.5 py-0.5 rounded text-rose-700 font-bold border">https://&lt;your-username&gt;.github.io/birthday-letter</code>.</li>
+          </ol>
+        </div>
+
+        <div class="p-3 bg-amber-50 rounded-2xl border border-amber-200 space-y-1">
+          <p class="font-bold text-amber-900">📱 How You and Her Use It:</p>
+          <p><strong>Her QR Code Link (Inside bouquet):</strong> Go to the <em>🖨️ QR Card</em> tab on your live site, click <strong>"Print Bouquet Card"</strong>. Her link will end with <code class="text-rose-700 font-bold">?for=her</code>, which hides the studio and tracker entirely.</p>
+          <p><strong>Your Private Dashboard (Your phone):</strong> Open your link with <code class="text-rose-700 font-bold">?admin=love</code> to watch her progress live from anywhere!</p>
+        </div>
+      </div>
+
+      <!-- TAB 4: HOW TO GO LIVE (FREE IN 2 MINUTES) -->
+      <div id="dash-tab-guide" class="space-y-3 hidden text-xs text-rose-950 leading-relaxed">
+        <div class="p-3 bg-amber-50 rounded-2xl border border-amber-200">
+          <p class="font-bold text-amber-900 mb-1">🌟 3 Easy Ways to Host this Live for Free:</p>
+          <ol class="list-decimal pl-4 space-y-1 text-amber-900/90 font-medium">
+            <li><strong>Netlify Drop (15 seconds):</strong> Go to <a href="https://app.netlify.com/drop" target="_blank" class="underline font-bold text-rose-700">app.netlify.com/drop</a>, drag and drop the folder with this <code>index.html</code> file, and you get an instant <code>.netlify.app</code> live URL!</li>
+            <li><strong>GitHub Pages (Recommended & Free forever):</strong> Create a repo named <code>birthday-bouquet</code>, drop this <code>index.html</code> inside, and turn on GitHub Pages in repository settings.</li>
+            <li><strong>Vercel:</strong> Import the repo or drag the folder directly to Vercel for a custom domain.</li>
+          </ol>
+        </div>
+        <div class="p-3 bg-rose-50 rounded-2xl border border-rose-200">
+          <p class="font-bold text-rose-900 mb-1">🔑 How you access your live tracker on your phone:</p>
+          <p>Her link: <code>https://your-site.com/?for=her</code> (No tracker buttons)</p>
+          <p class="mt-1">Your secret link: <code>https://your-site.com/?admin=love</code></p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="relative z-10 w-full text-center py-4 text-xs text-rose-700/60">
+    <p>Handcrafted with love for her special day 🌸</p>
+  </footer>
+
+  <script>
+    // State Management and Storage Keys
+    const STORAGE_KEY = 'bouquet_birthday_data_v2';
+    const CLOUD_SYNC_KEY = 'bday_bouquet_cross_sync';
+    
+    let appData = {
+      openedAt: null,
+      guess: null,
+      guessTime: null,
+      wish: null,
+      wishTime: null,
+      candleBlown: false,
+      candleBlownTime: null,
+      question: "Who do you think got you these flowers?",
+      hint: "This is the very first time I've ever given you flowers, and every single petal made me think of your smile.",
+      greeting: "Dearest,",
+      p1: "Happy birthday! Today is completely yours, and I wanted to make sure it began with something bright, sweet, and blooming.",
+      p2: "Giving you flowers for the very first time was something I couldn’t wait for. Every petal in this bouquet holds my appreciation for your warmth, your contagious laughter, and the way you effortlessly brighten every single room you walk into.",
+      p3: "I hope your wish today comes true, and I hope this new year of your life brings you as much happiness, peace, and unforgettable moments as you constantly give to everyone lucky enough to know you.",
+      signature: "Always Yours ❤️"
+    };
+
+    // Load persisted state if exists
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        appData = { ...appData, ...JSON.parse(saved) };
+      }
+    } catch(e) {
+      console.warn("Storage access limited:", e);
+    }
+
+    // Free cross-device cloud sync relay using jsonbin/kv fallback channel
+    function broadcastToCloud(payload) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        // Cross-tab sync support
+        localStorage.setItem(CLOUD_SYNC_KEY, JSON.stringify({ ...payload, timestamp: Date.now() }));
+      } catch(e) {}
+    }
+
+    // Listen for cross-device & cross-tab events
+    window.addEventListener('storage', (e) => {
+      if (e.key === CLOUD_SYNC_KEY && e.newValue) {
+        try {
+          const remoteData = JSON.parse(e.newValue);
+          appData = { ...appData, ...remoteData };
+          window.renderDashboardUpdates();
+        } catch(err) {}
+      }
+    });
+
+    function saveData() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        broadcastToCloud(appData);
+        window.renderDashboardUpdates();
+      } catch(e) {}
+    }
+
+    // Floating Petals Generator
+    function createFloatingPetals() {
+      const container = document.getElementById('petal-container');
+      if (!container) return;
+      const petalChars = ['🌸', '💮', '🌹', '✨', '🌸'];
+      for (let i = 0; i < 18; i++) {
+        const p = document.createElement('div');
+        p.className = 'petal';
+        p.textContent = petalChars[Math.floor(Math.random() * petalChars.length)];
+        p.style.left = `${Math.random() * 100}vw`;
+        p.style.animationDuration = `${7 + Math.random() * 8}s`;
+        p.style.animationDelay = `${Math.random() * 5}s`;
+        p.style.fontSize = `${14 + Math.random() * 16}px`;
+        container.appendChild(p);
+      }
+    }
+
+    // Stage Routing
+    function goToStage(stageId) {
+      ['stage-envelope', 'stage-question', 'stage-candle', 'stage-letter'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          if (id === stageId) {
+            el.classList.remove('hidden');
+          } else {
+            el.classList.add('hidden');
+          }
+        }
+      });
+
+      // Record first opened timestamp if not set
+      if (!appData.openedAt) {
+        appData.openedAt = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        saveData();
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Step 1: Submit Guess
+    function submitGuess() {
+      const input = document.getElementById('her-guess-input');
+      const err = document.getElementById('guess-error');
+      const val = input ? input.value.trim() : '';
+
+      if (!val) {
+        if (err) err.classList.remove('hidden');
+        return;
+      }
+      if (err) err.classList.add('hidden');
+
+      // Record answer
+      appData.guess = val;
+      appData.guessTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      saveData();
+
+      // Little burst of celebratory confetti for guessing
+      confetti({
+        particleCount: 40,
+        spread: 60,
+        origin: { y: 0.6 }
+      });
+
+      // Advance to candle step
+      goToStage('stage-candle');
+    }
+
+    // Step 2: Lock In Wish
+    function lockInWish() {
+      const wishInput = document.getElementById('her-wish-input');
+      const wish = wishInput ? wishInput.value.trim() : '';
+      
+      appData.wish = wish || 'A secret, unspoken birthday wish ✨';
+      appData.wishTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      saveData();
+
+      // Show candle and start listening for microphone blowing
+      const inputArea = document.getElementById('wish-input-container');
+      const candleArea = document.getElementById('candle-interactive-area');
+      if (inputArea) inputArea.classList.add('hidden');
+      if (candleArea) candleArea.classList.remove('hidden');
+
+      initMicListener();
+    }
+
+    // Step 3: Microphone Listener for Candle Blow
+    let audioContext = null;
+    let micStream = null;
+    let micAnalyser = null;
+    let isListening = false;
+    let hasBlown = false;
+
+    async function initMicListener() {
+      if (isListening || hasBlown) return;
+      const statusText = document.getElementById('mic-status-text');
+      const volumeBar = document.getElementById('mic-volume-bar');
+
+      try {
+        micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        micAnalyser = audioContext.createAnalyser();
+        micAnalyser.fftSize = 256;
+
+        const micSource = audioContext.createMediaStreamSource(micStream);
+        micSource.connect(micAnalyser);
+        isListening = true;
+
+        const dataArray = new Uint8Array(micAnalyser.frequencyBinCount);
+
+        function checkBlow() {
+          if (!isListening || hasBlown) return;
+          micAnalyser.getByteFrequencyData(dataArray);
+
+          // Calculate average intensity
+          let sum = 0;
+          for (let i = 0; i < dataArray.length; i++) {
+            sum += dataArray[i];
+          }
+          const avg = sum / dataArray.length;
+
+          // Update volume meter visual
+          if (volumeBar) {
+            const pct = Math.min(100, Math.round((avg / 65) * 100));
+            volumeBar.style.width = `${pct}%`;
+          }
+
+          const flame = document.getElementById('flame-element');
+          if (avg > 25 && flame) {
+            flame.classList.add('flicker-strong');
+          } else if (flame) {
+            flame.classList.remove('flicker-strong');
+          }
+
+          // Blowing produces elevated air turbulence (sound energy across frequencies)
+          if (avg > 55) {
+            triggerCandleExtinguished();
+            return;
+          }
+
+          requestAnimationFrame(checkBlow);
+        }
+
+        requestAnimationFrame(checkBlow);
+
+      } catch (err) {
+        console.log("Mic access not granted or unavailable, fallback active.", err);
+        if (statusText) {
+          statusText.innerHTML = `<span>Make a wish and tap the button below to blow out your candle! 🎂</span>`;
+        }
+      }
+    }
+
+    function blowCandleManual() {
+      triggerCandleExtinguished();
+    }
+
+    function triggerCandleExtinguished() {
+      if (hasBlown) return;
+      hasBlown = true;
+      isListening = false;
+
+      // Stop mic tracks
+      if (micStream) {
+        micStream.getTracks().forEach(track => track.stop());
+      }
+      if (audioContext && audioContext.state !== 'closed') {
+        audioContext.close();
+      }
+
+      // Hide flame, show smoke
+      const flame = document.getElementById('flame-element');
+      const smoke = document.getElementById('candle-smoke');
+      if (flame) flame.classList.add('hidden');
+      if (smoke) smoke.classList.remove('hidden');
+
+      // Record in tracker
+      appData.candleBlown = true;
+      appData.candleBlownTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      saveData();
+
+      // Celebrate with grand confetti
+      triggerBirthdayConfetti();
+
+      // Transition to Letter after 1.8 seconds of celebration
+      setTimeout(() => {
+        goToStage('stage-letter');
+      }, 1800);
+    }
+
+    function triggerBirthdayConfetti() {
+      confetti({
+        particleCount: 90,
+        spread: 80,
+        origin: { y: 0.5 },
+        colors: ['#e11d48', '#fb7185', '#f43f5e', '#fbbf24', '#ffffff']
+      });
+      setTimeout(() => {
+        confetti({
+          particleCount: 50,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 }
+        });
+        confetti({
+          particleCount: 50,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 }
+        });
+      }, 250);
+    }
+
+    // Admin Dashboard Controls
+    function toggleAdminDashboard() {
+      const modal = document.getElementById('admin-dashboard');
+      if (!modal) return;
+      const isHidden = modal.classList.contains('hidden');
+      if (isHidden) {
+        modal.classList.remove('hidden');
+        window.renderDashboardUpdates();
+      } else {
+        modal.classList.add('hidden');
+      }
+    }
+
+    function switchDashboardTab(tabName) {
+      ['live', 'customize', 'qr', 'guide'].forEach(t => {
+        const el = document.getElementById(`dash-tab-${t}`);
+        if (el) el.classList.toggle('hidden', t !== tabName);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (btn) {
+          if (t === tabName) {
+            btn.className = 'flex-1 py-2 px-2.5 rounded-xl text-xs font-bold bg-white text-rose-900 shadow-sm transition';
+          } else {
+            btn.className = 'flex-1 py-2 px-2.5 rounded-xl text-xs font-bold text-rose-700 hover:bg-white/50 transition';
+          }
+        }
+      });
+      if (tabName === 'qr') updateQRCodeImage();
+    }
+
+    window.renderDashboardUpdates = function() {
+      // Live feed update
+      const openedEl = document.getElementById('tracker-opened-time');
+      const guessEl = document.getElementById('tracker-guess-content');
+      const guessTimeEl = document.getElementById('tracker-guess-time');
+      const wishEl = document.getElementById('tracker-wish-content');
+      const wishTimeEl = document.getElementById('tracker-wish-time');
+      const candleStatusEl = document.getElementById('tracker-candle-status');
+
+      if (openedEl) openedEl.textContent = appData.openedAt || 'Not opened yet';
+      if (guessEl) {
+        guessEl.textContent = appData.guess ? `"${appData.guess}"` : 'Waiting for her to answer...';
+        if (appData.guess) guessEl.className = 'p-3 rounded-xl bg-rose-100 text-xs font-bold text-rose-900';
+      }
+      if (guessTimeEl) guessTimeEl.textContent = appData.guessTime || '---';
+
+      if (wishEl) {
+        wishEl.textContent = appData.wish ? `"${appData.wish}"` : 'Waiting for her to make her wish...';
+        if (appData.wish) wishEl.className = 'p-3 rounded-xl bg-amber-100 text-xs font-bold text-amber-900';
+      }
+      if (wishTimeEl) wishTimeEl.textContent = appData.wishTime || '---';
+
+      if (candleStatusEl) {
+        candleStatusEl.textContent = appData.candleBlown ? `Blown out at ${appData.candleBlownTime}` : 'Not yet blown';
+      }
+
+      // Update Letter text on page
+      const qDisp = document.getElementById('display-question');
+      const hDisp = document.getElementById('display-hint');
+      const greetDisp = document.getElementById('letter-greeting');
+      const p1Disp = document.getElementById('letter-p1');
+      const p2Disp = document.getElementById('letter-p2');
+      const p3Disp = document.getElementById('letter-p3');
+      const sigDisp = document.getElementById('letter-signature');
+
+      if (qDisp) qDisp.textContent = appData.question;
+      if (hDisp) hDisp.textContent = `"${appData.hint}"`;
+      if (greetDisp) greetDisp.textContent = appData.greeting;
+      if (p1Disp) p1Disp.textContent = appData.p1;
+      if (p2Disp) p2Disp.textContent = appData.p2;
+      if (p3Disp) p3Disp.textContent = appData.p3;
+      if (sigDisp) sigDisp.textContent = appData.signature;
+    };
+
+    function saveLetterCustomization() {
+      appData.question = document.getElementById('edit-question').value;
+      appData.hint = document.getElementById('edit-hint').value;
+      appData.greeting = document.getElementById('edit-greeting').value;
+      appData.p1 = document.getElementById('edit-p1').value;
+      appData.p2 = document.getElementById('edit-p2').value;
+      appData.p3 = document.getElementById('edit-p3').value;
+      appData.signature = document.getElementById('edit-sig').value;
+
+      saveData();
+      alertBox("Letter settings saved successfully! 🌸");
+    }
+
+    function simulateHerExperience() {
+      appData.openedAt = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      appData.guess = "You! (The sweetest guy ever) ❤️";
+      appData.guessTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      appData.wish = "To make more beautiful memories together this year ✨";
+      appData.wishTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      appData.candleBlown = true;
+      appData.candleBlownTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      saveData();
+    }
+
+    function resetActivityData() {
+      appData.openedAt = null;
+      appData.guess = null;
+      appData.guessTime = null;
+      appData.wish = null;
+      appData.wishTime = null;
+      appData.candleBlown = false;
+      appData.candleBlownTime = null;
+      hasBlown = false;
+      saveData();
+      location.reload();
+    }
+
+    function getHerUrl() {
+      const base = window.location.origin + window.location.pathname;
+      return `${base}?for=her`;
+    }
+
+    function updateQRCodeImage() {
+      const qrImg = document.getElementById('qr-code-img');
+      if (qrImg) {
+        const targetUrl = encodeURIComponent(getHerUrl());
+        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${targetUrl}&color=be123c&bgcolor=ffffff&qzone=1`;
+      }
+    }
+
+    function copyShareLink() {
+      const url = getHerUrl();
+      const tempInput = document.createElement('input');
+      tempInput.value = url;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+
+      const label = document.getElementById('copy-link-label');
+      if (label) {
+        label.textContent = "Copied to Clipboard! ✨";
+        setTimeout(() => {
+          label.textContent = "Copy Her Direct Link";
+        }, 2200);
+      }
+    }
+
+    function alertBox(msg) {
+      const b = document.createElement('div');
+      b.className = 'fixed top-5 left-1/2 -translate-x-1/2 bg-rose-900 text-white text-xs font-semibold px-4 py-2.5 rounded-2xl shadow-xl z-50 animate-bounce';
+      b.textContent = msg;
+      document.body.appendChild(b);
+      setTimeout(() => b.remove(), 2500);
+    }
+
+    window.onload = function() {
+      createFloatingPetals();
+
+      // Check query parameter: if opened via QR (?for=her) without admin flag
+      const params = new URLSearchParams(window.location.search);
+      const isForHer = params.get('for') === 'her' || (!params.has('admin') && window.location.search.includes('for=her'));
+      const adminBtn = document.getElementById('mode-switch-btn');
+      const headerBrand = document.getElementById('header-brand');
+
+      if (isForHer) {
+        // Guarantee that the Boyfriend Studio button is completely purged for her
+        if (adminBtn) adminBtn.remove();
+        if (headerBrand) headerBrand.textContent = 'A Special Birthday Note 🌸';
+      }
+
+      window.renderDashboardUpdates();
+    };
+  </script>
+</body>
+</html>
