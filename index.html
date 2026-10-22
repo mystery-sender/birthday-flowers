@@ -75,11 +75,11 @@
       border-radius: 9999px;
       font-size: 0.75rem;
       font-weight: 600;
-      color: #6c757d;
+      color: var(--primary);
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
       z-index: 100;
-      display: none;
+      display: block;
     }
 
     /* Container Card */
@@ -337,12 +337,7 @@
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: #6c757d;
-    }
-
-    .mic-pulse-dot.active {
       background: #2a9d8f;
-      box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.25);
       animation: pulse 1s infinite;
     }
 
@@ -383,35 +378,6 @@
       color: var(--primary);
       text-align: right;
       margin-top: 1.5rem;
-    }
-
-    .selfie-card {
-      margin-top: 2rem;
-      padding-top: 1.5rem;
-      border-top: 1px dashed #ded6ce;
-      text-align: center;
-    }
-
-    .btn-selfie {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
-      color: #ffffff;
-      border: none;
-      padding: 0.85rem 1.5rem;
-      border-radius: 9999px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      box-shadow: 0 6px 18px rgba(255, 117, 140, 0.35);
-      transition: transform 0.15s ease;
-      width: 100%;
-    }
-
-    .btn-selfie:active {
-      transform: scale(0.98);
     }
 
     /* Boyfriend Studio Modal */
@@ -482,15 +448,6 @@
       margin-bottom: 0.2rem;
     }
 
-    .feed-item img {
-      margin-top: 0.6rem;
-      width: 100%;
-      max-width: 220px;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-      display: block;
-    }
-
     @media print {
       body * {
         visibility: hidden !important;
@@ -515,7 +472,7 @@
   <!-- Ambient Floating Petals -->
   <div class="petals-container" id="petals"></div>
 
-  <!-- Boyfriend Button (Invisible on ?for=her) -->
+  <!-- Boyfriend Button (Hidden on ?for=her) -->
   <button id="admin-toggle-btn" onclick="openAdminModal()">⚙️ Boyfriend Studio</button>
 
   <div class="app-card">
@@ -591,16 +548,15 @@
       </button>
     </div>
 
-    <!-- STAGE 3: Final Letter & Selfie Button -->
+    <!-- STAGE 3: Final Letter -->
     <div id="stage-letter" class="view-stage">
       <div class="letter-paper">
         <div class="letter-greeting">My Dearest,</div>
         
         <div class="letter-body">
           <p>
-Happy birthday sidra inshallah hzar sali bi bgahya hami hivi o omedet xo  jiyake sarkafty o drej bota d xazm hividkam af diyarya bchik b dle ta bitn          </p>
-          <p>
-        
+            Happy birthday sidra inshallah hzar sali bi bgahya hami hivi o omedet xo  jiyake sarkafty o drej bota d xazm hividkam af diyarya bchik b dle ta bitn          
+          </p>
           <p>
             dobara de bema ta tamanake drej o pri xoshi bota d xazm .
           </p>
@@ -612,7 +568,7 @@ Happy birthday sidra inshallah hzar sali bi bgahya hami hivi o omedet xo  jiyake
         </div>
       </div>
 
-     <!-- Simple End Note (No button) -->
+      <!-- Simple End Note (No button) -->
       <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px dashed #ded6ce; text-align: center;">
         <p style="font-size: 1rem; color: #a1887f; font-style: italic; margin-bottom: 0.6rem;">
           mn dvet kania ta o kaina tabinm dgalgule  ✨
@@ -621,7 +577,10 @@ Happy birthday sidra inshallah hzar sali bi bgahya hami hivi o omedet xo  jiyake
           📸 tasirake bomn freka o gull fta 
         </div>
       </div>
-      
+    </div>
+
+  </div> <!-- Closed app-card properly -->
+
   <!-- BOYFRIEND STUDIO MODAL -->
   <div id="admin-modal" class="admin-modal">
     <div class="admin-content">
@@ -631,15 +590,16 @@ Happy birthday sidra inshallah hzar sali bi bgahya hami hivi o omedet xo  jiyake
       </div>
 
       <div class="admin-tabs">
-        <button class="admin-tab-btn active" onclick="switchAdminTab('feed')">Live Feed</button>
-        <button class="admin-tab-btn" onclick="switchAdminTab('qr')">Print QR Card</button>
+        <button class="admin-tab-btn active" id="btn-tab-feed" onclick="switchAdminTab('feed')">Live Feed</button>
+        <button class="admin-tab-btn" id="btn-tab-qr" onclick="switchAdminTab('qr')">Print QR Card</button>
       </div>
 
       <!-- Feed Tab -->
       <div id="tab-feed">
-        <p style="font-size: 0.78rem; color:#6c757d; margin-bottom: 0.8rem;">
-          Real-time activity and photos recorded:
-        </p>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem;">
+          <p style="font-size: 0.78rem; color:#6c757d;">Real-time activity recorded:</p>
+          <button onclick="renderFeed()" style="background:none; border:none; color:var(--primary); font-size:0.78rem; font-weight:600; cursor:pointer;">🔄 Refresh</button>
+        </div>
         <div id="feed-list" style="max-height: 280px; overflow-y: auto;">
           <p style="font-size: 0.82rem; color: #adb5bd; font-style: italic;">No activity yet. Scan the card to begin.</p>
         </div>
@@ -674,9 +634,6 @@ Happy birthday sidra inshallah hzar sali bi bgahya hami hivi o omedet xo  jiyake
       "سوزدار"
     ];
 
-    // Put your WhatsApp number here (international format, no + or spaces)
-    const BOYFRIEND_WHATSAPP_NUMBER = "9647512119331";
-
     /* 2. Recipient Protection */
     const urlParams = new URLSearchParams(window.location.search);
     const isHerSession = urlParams.get('for') === 'her';
@@ -684,7 +641,7 @@ Happy birthday sidra inshallah hzar sali bi bgahya hami hivi o omedet xo  jiyake
 
     if (isHerSession) {
       const adminBtn = document.getElementById('admin-toggle-btn');
-      if (adminBtn) adminBtn.remove();
+      if (adminBtn) adminBtn.style.display = 'none';
       const adminModal = document.getElementById('admin-modal');
       if (adminModal) adminModal.remove();
     } else {
@@ -707,23 +664,16 @@ Happy birthday sidra inshallah hzar sali bi bgahya hami hivi o omedet xo  jiyake
       petalsContainer.appendChild(p);
     }
 
-    /* 4. Real-time Event Logger & Photo Display */
-    function recordEvent(type, detail, imageSrc = null) {
+    /* 4. Real-time Event Logger */
+    function recordEvent(type, detail) {
       const events = JSON.parse(localStorage.getItem('bouquet_events') || '[]');
       const newEvent = {
         type: type,
         detail: detail,
-        image: imageSrc,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
       };
       events.unshift(newEvent);
-      
-      try {
-        localStorage.setItem('bouquet_events', JSON.stringify(events));
-      } catch (err) {
-        localStorage.setItem('bouquet_events', JSON.stringify([newEvent]));
-      }
-      
+      localStorage.setItem('bouquet_events', JSON.stringify(events));
       renderFeed();
     }
 
@@ -732,14 +682,13 @@ Happy birthday sidra inshallah hzar sali bi bgahya hami hivi o omedet xo  jiyake
       if (!feedList) return;
       const events = JSON.parse(localStorage.getItem('bouquet_events') || '[]');
       if (events.length === 0) {
-        feedList.innerHTML = `<p style="font-size: 0.82rem; color: #adb5bd; font-style: italic;">No activity yet.</p>`;
+        feedList.innerHTML = `<p style="font-size: 0.82rem; color: #adb5bd; font-style: italic;">No activity yet. Scan the card to begin.</p>`;
         return;
       }
       feedList.innerHTML = events.map(e => `
         <div class="feed-item">
           <span class="time">${e.timestamp}</span>
           <strong>${e.type}</strong>: ${escapeHtml(e.detail)}
-          ${e.image ? `<div><img src="${e.image}" alt="Selfie with bouquet" /></div>` : ''}
         </div>
       `).join('');
     }
@@ -802,7 +751,6 @@ Happy birthday sidra inshallah hzar sali bi bgahya hami hivi o omedet xo  jiyake
 
       document.getElementById('mic-start-btn').style.display = 'none';
       document.getElementById('mic-badge').style.display = 'inline-flex';
-      document.getElementById('mic-dot').classList.add('active');
       document.getElementById('manual-blow-btn').style.display = 'block';
 
       startAudioDetection();
@@ -871,25 +819,7 @@ Happy birthday sidra inshallah hzar sali bi bgahya hami hivi o omedet xo  jiyake
       }, 1200);
     }
 
-    /* 7. Selfie Handling: Show in Feed + Send to WhatsApp */
-    function handleSelfieChosen(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const base64Image = e.target.result;
-        recordEvent("SELFIE_SNAPPED", "She snapped a photo with her flowers!", base64Image);
-
-        const message = encodeURIComponent("Look what arrived! Thank you so much for the flowers 💐❤️");
-        setTimeout(() => {
-          window.location.href = `https://wa.me/${BOYFRIEND_WHATSAPP_NUMBER}?text=${message}`;
-        }, 800);
-      };
-      reader.readAsDataURL(file);
-    }
-
-    /* 8. Admin Studio Controls */
+    /* 7. Admin Studio Controls */
     function openAdminModal() {
       document.getElementById('admin-modal').classList.add('open');
       renderFeed();
@@ -901,18 +831,12 @@ Happy birthday sidra inshallah hzar sali bi bgahya hami hivi o omedet xo  jiyake
     }
 
     function switchAdminTab(tab) {
-      document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
-      if (tab === 'feed') {
-        event.target.classList.add('active');
-        document.getElementById('tab-feed').style.display = 'block';
-        document.getElementById('tab-qr').style.display = 'none';
-        renderFeed();
-      } else {
-        event.target.classList.add('active');
-        document.getElementById('tab-feed').style.display = 'none';
-        document.getElementById('tab-qr').style.display = 'block';
-        generateBouquetQR();
-      }
+      document.getElementById('btn-tab-feed').classList.toggle('active', tab === 'feed');
+      document.getElementById('btn-tab-qr').classList.toggle('active', tab === 'qr');
+      document.getElementById('tab-feed').style.display = tab === 'feed' ? 'block' : 'none';
+      document.getElementById('tab-qr').style.display = tab === 'qr' ? 'block' : 'none';
+      if (tab === 'qr') generateBouquetQR();
+      if (tab === 'feed') renderFeed();
     }
 
     function generateBouquetQR() {
